@@ -12,7 +12,6 @@
         <form id="signupForm" method="post">
             <div class="textbox">
                 <input type="text" id="name" name="nm" placeholder="Enter Name" required><br>
-                <input type="text" id="age" name="age" placeholder="Enter Age" required><br>
                 <input type="date" id="dob" name="dob" placeholder="Enter Date of Birth (YYYY-MM-DD)" required><br>
                 Gender:
                 <input type="radio" id="male" name="gender" value="male" checked>Male
@@ -36,8 +35,9 @@ session_start();
 include("connect.php");
 if(isset($_POST['submit'])){
     $nm=$_POST['nm'];
-    $age=$_POST['age'];
     $dob=$_POST['dob'];
+    $age;
+    $today = Date('dd-mm-yyyy');
     $mno=$_POST['mno'];
     $gen=$_POST['gender'];
     $mail=$_POST['email'];
@@ -45,9 +45,8 @@ if(isset($_POST['submit'])){
     $rpass=$_POST['rpass'];
     $query="INSERT INTO consumer_mst (c_nm, c_gen, c_age, c_dob, c_mno, c_email, c_pwd) VALUES ('$nm','$gen','$age','$dob','$mno','$mail','$pass')";
 
-    if($age < 12){
-        echo "<script>Age must be above 12</script>";        
-    }elseif(!filter_var($mail,FILTER_VALIDATE_EMAIL)){
+    
+    if(!filter_var($mail,FILTER_VALIDATE_EMAIL)){
         echo "<script>alert('Please Check your email format');</script>";
     }elseif($pass != $rpass){
         echo "<script>alert('Passwords do not match');</script>";
