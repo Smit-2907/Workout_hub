@@ -11,10 +11,11 @@ include("connect.php");
 </head>
 <body>
     <main>
+        <!-- demo comment -->
         <form id="loginForm" method="post">
             <div class="textbox">
                 <input type="text" id="name" name="nm" placeholder="Enter Name"><br>
-                <input type="text" id="email" name="email" placeholder="Enter E-mail"><br>
+                <input type="text" id="email" name="email" placeholder="Enter E-mail"><br> 
                 <input type="password" id="pass" name="pass" placeholder="Enter Password"><br>
             </div>
             <div class="button">

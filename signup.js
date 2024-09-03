@@ -19,13 +19,6 @@ document.getElementById('signupForm').addEventListener('submit', function(event)
     // Mobile number validation regex (10 digits)
     var mobileRegex = /^\d{10}$/;
 
-    // Required field validation
-    if (name === '' || age === '' || dob === '' || (!genderMale && !genderFemale) || mobile === '' || email === '' || password === '' || repeatPassword === '') {
-        alert('All fields are required.');
-        event.preventDefault();
-        return;
-    }
-
     // Validate email
     if (!emailRegex.test(email)) {
         alert('Please enter a valid email address.');
@@ -47,13 +40,7 @@ document.getElementById('signupForm').addEventListener('submit', function(event)
         return;
     }
 
-    // Validate age (must be a number)
-    if (isNaN(age) || age <= 0) {
-        alert('Please enter a valid age.');
-        event.preventDefault();
-        return;
-    }
-
+    
     // Validate date of birth
     if (!isValidDate(dob)) {
         alert('Please enter a valid date of birth in the format YYYY-MM-DD.');

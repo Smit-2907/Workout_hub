@@ -11,16 +11,16 @@
     <main>
         <form id="signupForm" method="post">
             <div class="textbox">
-                <input type="text" id="name" name="nm" placeholder="Enter Name"><br>
-                <input type="text" id="age" name="age" placeholder="Enter Age"><br>
-                <input type="date" id="dob" name="dob" placeholder="Enter Date of Birth (YYYY-MM-DD)"><br>
+                <input type="text" id="name" name="nm" placeholder="Enter Name" required><br>
+                <input type="text" id="age" name="age" placeholder="Enter Age" required><br>
+                <input type="date" id="dob" name="dob" placeholder="Enter Date of Birth (YYYY-MM-DD)" required><br>
                 Gender:
                 <input type="radio" id="male" name="gender" value="male" checked>Male
-                <input type="radio" id="female" name="gender" value="female">Female <br>
-                <input type="number" id="mno" name="mno" placeholder="Enter Mobile No"><br>
-                <input type="text" id="email" name="email" placeholder="Enter E-mail"><br>
-                <input type="password" id="pass" name="pass" placeholder="Enter Password"><br>
-                <input type="password" id="rpass" name="rpass" placeholder="Re-enter Password"><br>
+                <input type="radio" id="female" name="gender" value="female" >Female <br>
+                <input type="number" id="mno" name="mno" placeholder="Enter Mobile No" required><br>
+                <input type="text" id="email" name="email" placeholder="Enter E-mail" required><br>
+                <input type="password" id="pass" name="pass" placeholder="Enter Password" required><br>
+                <input type="password" id="rpass" name="rpass" placeholder="Re-enter Password" required><br>
             </div>
             <div class="button">
                 <input type="submit" id="submitBtn" name="submit" value="Submit"><br>
@@ -29,46 +29,38 @@
         </form>
     </main>
     <footer>
-        <!-- <script src="signup.js"></script> -->
     </footer>
-    <?php
+<?php
+session_start();
+
 include("connect.php");
+if(isset($_POST['submit'])){
+    $nm=$_POST['nm'];
+    $age=$_POST['age'];
+    $dob=$_POST['dob'];
+    $mno=$_POST['mno'];
+    $gen=$_POST['gender'];
+    $mail=$_POST['email'];
+    $pass=$_POST['pass'];
+    $rpass=$_POST['rpass'];
+    $query="INSERT INTO consumer_mst (c_nm, c_gen, c_age, c_dob, c_mno, c_email, c_pwd) VALUES ('$nm','$gen','$age','$dob','$mno','$mail','$pass')";
 
-if (!$conn) {
-    die("Connection failed: " . mysqli_connect_error());
-}
-
-if (isset($_POST['submit'])) {
-    // Debug: Print the form data
-    echo "<pre>";
-    print_r($_POST);
-    echo "</pre>";
-
-    $nm = $_POST['nm'];
-    $age = $_POST['age'];
-    $dob = $_POST['dob'];
-    $mno = $_POST['mno'];
-    $gen = $_POST['gender'];
-    $mail = $_POST['email'];
-    $pass = password_hash($_POST['pass'], PASSWORD_DEFAULT);  // Secure password handling
-
-    // SQL query
-    $query = "INSERT INTO consumer_mst (c_nm, c_gen, c_age, c_dob, c_mno, c_email, c_pwd) VALUES ('$nm','$gen','$age','$dob','$mno','$mail','$pass')";
-
-    // Debug: Print the query
-    echo $query;
-
-    // Execute query and check for errors
-    $exe = mysqli_query($conn, $query);
-
-    if (!$exe) {
-        die("Error in query: " . mysqli_error($conn));
-    } else {
-        echo "Record inserted successfully";
-        // Redirect on successful insertion
-        header("Location:welcome.php");
-        exit();
+    if($age < 12){
+        echo "<script>Age must be above 12</script>";        
+    }elseif(!filter_var($mail,FILTER_VALIDATE_EMAIL)){
+        echo "<script>alert('Please Check your email format');</script>";
+    }elseif($pass != $rpass){
+        echo "<script>alert('Passwords do not match');</script>";
+    }elseif(!($mnoc("/^[6-9]\d{9}$/", $mno))) {
+        echo "<script>alert('Enter valid Phone Number');</script>";
     }
+
+    // $exe=mysqli_query($conn,$query);
+    
+
+    // Redirect to the same page to prevent form resubmission
+    // header("Location: " . $_SERVER['PHP_SELF']);
+    // exit();
 }
 ?>
 
