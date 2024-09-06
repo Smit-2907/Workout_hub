@@ -7,7 +7,9 @@
     <link rel="stylesheet" href="index.css">
 </head>
 <body>
+    <header>
     <h1>Conumer Signup Page</h1>
+    </header>
     <main>
         <form id="signupForm" method="post">
             <div class="textbox">
@@ -29,41 +31,49 @@
     </main>
     <footer>
     </footer>
-<?php
+    <?php
 session_start();
-
 include("connect.php");
+
 if(isset($_POST['submit'])){
-    $nm=$_POST['nm'];
-    $dob=$_POST['dob'];
-    $age;
-    $today = Date('dd-mm-yyyy');
-    $mno=$_POST['mno'];
-    $gen=$_POST['gender'];
-    $mail=$_POST['email'];
-    $pass=$_POST['pass'];
-    $rpass=$_POST['rpass'];
-    $query="INSERT INTO consumer_mst (c_nm, c_gen, c_age, c_dob, c_mno, c_email, c_pwd) VALUES ('$nm','$gen','$age','$dob','$mno','$mail','$pass')";
+    $nm = $_POST['nm'];
+    $dob = $_POST['dob'];
+    $mno = $_POST['mno'];
+    $gen = $_POST['gender'];
+    $mail = $_POST['email'];
+    $pass = $_POST['pass'];
+    $rpass = $_POST['rpass'];
 
-    
-    if(!filter_var($mail,FILTER_VALIDATE_EMAIL)){
+    if(!filter_var($mail, FILTER_VALIDATE_EMAIL)){
         echo "<script>alert('Please Check your email format');</script>";
-    }elseif($pass != $rpass){
-        echo "<script>alert('Passwords do not match');</script>";
-    }elseif(!($mnoc("/^[6-9]\d{9}$/", $mno))) {
-        echo "<script>alert('Enter valid Phone Number');</script>";
     }
-
-    // $exe=mysqli_query($conn,$query);
     
+    elseif($pass != $rpass){
+        echo "<script>alert('Passwords do not match');</script>";
+    }
+    
+    elseif(!preg_match("/^[6-9]\d{9}$/", $mno)){
+        echo "<script>alert('Enter valid Phone Number');</script>";
+    } else {
+        
+        $today = new DateTime(); 
+        $birthdate = new DateTime($dob); 
+        $age = $today->diff($birthdate)->y; 
 
-    // Redirect to the same page to prevent form resubmission
-    // header("Location: " . $_SERVER['PHP_SELF']);
-    // exit();
+        $query = "INSERT INTO consumer_mst (c_nm, c_gen, c_age, c_dob, c_mno, c_email, c_pwd) 
+                  VALUES ('$nm','$gen','$age','$dob','$mno','$mail','$pass')";
+        
+        $exe = mysqli_query($conn, $query);
+
+        if($exe){
+            header("Location: welcome.php"); 
+            exit();
+        } else {
+            echo "<script>alert('Error in Signup');</script>";
+        }
+    }
 }
 ?>
-
-
 
 </body>
 </html>

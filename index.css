@@ -1,3 +1,92 @@
-body{
+/* General body styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+/* Main container styling */
+main {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Heading styling */
+h1 {
     text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Form styling */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Textbox styling */
+.textbox input[type="text"],
+.textbox input[type="date"],
+.textbox input[type="number"],
+.textbox input[type="password"] {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Custom radio button styling */
+.textbox input[type="radio"] {
+    accent-color: #007bff; /* Modern CSS property for custom color */
+    margin-right: 8px; /* Space between radio button and label */
+}
+
+/* Label styling for radio buttons */
+.textbox label {
+    display: inline-block;
+    margin-right: 15px;
+    font-size: 14px;
+    color: #333;
+}
+
+/* Button styling */
+.button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.button input[type="submit"] {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.button input[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* Link styling */
+a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Footer styling */
+footer {
+    text-align: center;
+    margin-top: 20px;
 }

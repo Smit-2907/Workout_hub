@@ -10,6 +10,9 @@ include("connect.php");
     <link rel="stylesheet" href="index.css">
 </head>
 <body>
+    <header>
+    <h1>Conumer Login Page</h1>
+    </header>
     <main>
         <!-- demo comment -->
         <form id="loginForm" method="post">
