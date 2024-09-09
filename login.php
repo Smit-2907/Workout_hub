@@ -14,7 +14,6 @@ include("connect.php");
     <h1>Conumer Login Page</h1>
     </header>
     <main>
-        <!-- demo comment -->
         <form id="loginForm" method="post">
             <div class="textbox">
                 <input type="text" id="name" name="nm" placeholder="Enter Name"><br>
@@ -28,24 +27,25 @@ include("connect.php");
         </form>
     </main>
     <footer>
-        <script src="login.js"></script>
+        <!-- <script src="login.js"></script> -->
     </footer>
 </body>
 <?php
+include("connect.php");
 if(isset($_POST['submit'])){
     $mail = $_POST['email'];
     $pass = $_POST['pass'];
     $query = "SELECT * FROM consumer_mst WHERE c_mail = '$id', c_pwd = $pwd";
-
     $exe = mysqli_query($conn, $query);
+    echo "$id,$pwd";
 
-    if (!$exe) {
-        echo "<script>alert('Error executing query');</script>";
-        exit();
-    }
+     if (!$exe) {
+         echo "<script>alert('Error executing query');</script>";
+         exit();
+     }
 
-    $found = false;
-    while ($row = mysqli_fetch_assoc($exe)) {
+     $found = false;
+     while ($row = mysqli_fetch_assoc($exe)){
         $id = $row['c_email'];
         $pwd = $row['c_pwd'];
         if ($mail == $id && $pass == $pwd) {
