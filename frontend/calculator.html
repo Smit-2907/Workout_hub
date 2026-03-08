@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calorie Calculator | Workout Hub 2.0</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body style="min-height: 100vh; display: flex; flex-direction: column;">
+    <nav class="glass">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div class="logo">WORKOUT<span style="color: var(--primary)">HUB</span></div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="dashboard.html">Dashboard</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container" style="margin-top: 4rem; display: flex; justify-content: center;">
+        <div class="glass animate" style="width: 100%; max-width: 500px; padding: 3rem;">
+            <h2 style="margin-bottom: 0.5rem;">Calorie Burner 📊</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2.5rem;">Estimate how many calories you burned during
+                your session.</p>
+
+            <form id="calcForm">
+                <div class="form-group">
+                    <label>Weight (kg)</label>
+                    <input type="number" id="weight" class="form-input" placeholder="e.g. 70" required>
+                </div>
+                <div class="form-group">
+                    <label>Workout Duration (minutes)</label>
+                    <input type="number" id="duration" class="form-input" placeholder="e.g. 45" required>
+                </div>
+                <div class="form-group">
+                    <label>Intensity Level</label>
+                    <select id="intensity" class="form-input" style="background: var(--bg-dark);">
+                        <option value="3">Low (Light cardio, stretching)</option>
+                        <option value="6">Moderate (Weightlifting, jogging)</option>
+                        <option value="9">High (HIIT, fast running, heavy lifting)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary"
+                    style="width: 100%; justify-content: center; margin-top: 1rem;">
+                    Calculate Burn
+                </button>
+            </form>
+
+            <div id="result"
+                style="display: none; margin-top: 3rem; text-align: center; border-top: 1px solid var(--glass-border); padding-top: 2rem;">
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.5rem;">Estimated Calories Burned
+                </p>
+                <div id="calorieValue" style="font-size: 3.5rem; font-weight: 700; color: var(--primary);">0</div>
+                <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 1rem;">
+                    *This is an estimate based on MET values. Actual results may vary.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('calcForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const w = parseFloat(document.getElementById('weight').value);
+            const d = parseFloat(document.getElementById('duration').value);
+            const met = parseFloat(document.getElementById('intensity').value);
+
+            // Formula: (MET * 3.5 * weight) / 200 * duration
+            const burned = Math.round((met * 3.5 * w) / 200 * d);
+
+            document.getElementById('calorieValue').innerText = burned;
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('result').classList.add('animate');
+        });
+    </script>
+
+    <footer style="margin-top: auto; padding: 4rem 0; text-align: center; border-top: 1px solid var(--glass-border);">
+        <p style="color: var(--text-muted);">&copy; 2026 Workout Hub 2.0</p>
+    </footer>
+</body>
+
+</html>

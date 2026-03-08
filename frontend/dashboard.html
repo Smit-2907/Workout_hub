@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Workout Hub 2.0</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <nav class="glass">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div class="logo">WORKOUT<span style="color: var(--primary)">HUB</span></div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="exercises.html">Exercises</a></li>
+                <li><a href="#" id="logoutBtn">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container" style="margin-top: 4rem;">
+        <header style="margin-bottom: 3rem;">
+            <h2 id="welcomeMsg" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Welcome back!</h2>
+            <p style="color: var(--text-muted);">Ready to crush your workout today?</p>
+        </header>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+            <!-- Stats Card -->
+            <div class="glass animate" style="padding: 2rem;">
+                <h3 style="margin-bottom: 1.5rem;">Your Activity</h3>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; padding-bottom: 1rem; border-bottom: 1px solid var(--glass-border);">
+                        <span>Workouts This Week</span>
+                        <span id="weekCount" style="color: var(--primary); font-weight: 700;">...</span>
+                    </div>
+                    <div
+                        style="display: flex; justify-content: space-between; padding-bottom: 1rem; border-bottom: 1px solid var(--glass-border);">
+                        <span>Favorite Focus</span>
+                        <span id="favFocus" style="color: var(--primary); font-weight: 700;">...</span>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <a href="calculator.html" class="btn glass" style="flex: 1; justify-content: center;">Calculator</a>
+                    <a href="exercises.html" class="btn btn-primary"
+                        style="flex: 1; justify-content: center;">Exercises</a>
+                </div>
+            </div>
+
+            <!-- AI Recommendation -->
+            <div class="glass animate" style="padding: 2rem; animation-delay: 0.1s; border: 1px solid var(--primary);">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;">
+                    <span style="font-size: 1.5rem;">💡</span>
+                    <h3 style="margin: 0;">AI Recommendation</h3>
+                </div>
+                <div id="recoContainer">
+                    <p style="color: var(--text-muted);">Analyzing your recent sessions...</p>
+                </div>
+            </div>
+
+            <!-- Recent Logs -->
+            <div class="glass animate" style="padding: 2rem; animation-delay: 0.2s;">
+                <h3 style="margin-bottom: 1.5rem;">Recent History</h3>
+                <div id="logsContainer" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <!-- Logs will appear here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Simple Session Mock for Welcome Message
+        // In a real app, we'd fetch actual session data from backend, 
+        // but here we can just show the generic UI for the dashboard.
+
+        async function loadDashboardData() {
+            try {
+                // Load Stats
+                const statsResp = await fetch('../backend/api.php?action=get_user_stats');
+                const stats = await statsResp.json();
+                document.getElementById('weekCount').innerText = stats.week_workouts;
+                document.getElementById('favFocus').innerText = stats.favorite_focus;
+
+                // Load Recommendation
+                const recoResp = await fetch('../backend/api.php?action=get_recommendation');
+                const reco = await recoResp.json();
+                const recoDiv = document.getElementById('recoContainer');
+                if (reco.exercise) {
+                    recoDiv.innerHTML = `
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">${reco.reason}</p>
+                        <div style="background: var(--glass); padding: 1rem; border-radius: 12px;">
+                            <h4 style="margin-bottom: 0.25rem;">${reco.exercise.name}</h4>
+                            <div style="font-size: 0.75rem; color: var(--primary); font-weight: 600; text-transform: uppercase; margin-bottom: 1rem;">${reco.exercise.muscle_group}</div>
+                            <a href="exercise-detail.html?id=${reco.exercise.id}" class="btn glass" style="width: 100%; justify-content: center; font-size: 0.8rem;">View Workout</a>
+                        </div>
+                    `;
+                } else {
+                    recoDiv.innerHTML = '<p style="color: var(--text-muted);">Could not find a recommendation. Try adding more exercises!</p>';
+                }
+
+                // Load Logs
+                const logsResp = await fetch('../backend/api.php?action=get_user_logs');
+                const logs = await logsResp.json();
+                const container = document.getElementById('logsContainer');
+                container.innerHTML = '';
+
+                if (logs.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-muted);">No workouts logged yet.</p>';
+                }
+
+                logs.forEach(log => {
+                    const item = document.createElement('div');
+                    item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: var(--glass); border-radius: 10px; font-size: 0.9rem;';
+                    item.innerHTML = `
+                        <div>
+                            <div style="font-weight: 600;">${log.exercise_name}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">${new Date(log.logged_at).toLocaleDateString()}</div>
+                        </div>
+                        <div style="color: var(--primary); font-weight: 700;">
+                            ${log.sets} x ${log.reps} @ ${log.weight}kg
+                        </div>
+                    `;
+                    container.appendChild(item);
+                });
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            const formData = new FormData();
+            formData.append('action', 'logout');
+            await fetch('../backend/api.php', { method: 'POST', body: formData });
+            window.location.href = 'login.html';
+        });
+
+        loadDashboardData();
+    </script>
+</body>
+
+</html>
