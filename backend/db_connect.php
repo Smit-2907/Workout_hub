@@ -2,7 +2,7 @@
 // backend/includes/db_connect.php
 
 $host = 'localhost';
-$db   = 'workout_hub_2';
+$db   = 'workout_hub';
 $user = 'root';
 $pass = '';
 $charset = 'utf8mb4';

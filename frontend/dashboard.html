@@ -75,7 +75,21 @@
         // In a real app, we'd fetch actual session data from backend, 
         // but here we can just show the generic UI for the dashboard.
 
+        async function checkAuth() {
+            const formData = new FormData();
+            formData.append('action', 'check_session');
+            const response = await fetch('../backend/api.php', { method: 'POST', body: formData });
+            const result = await response.json();
+
+            if (result.status !== 'authenticated') {
+                window.location.href = 'auth/login.html';
+            } else {
+                document.getElementById('welcomeMsg').innerText = `Welcome back, ${result.user}!`;
+            }
+        }
+
         async function loadDashboardData() {
+            await checkAuth();
             try {
                 // Load Stats
                 const statsResp = await fetch('../backend/api.php?action=get_user_stats');
@@ -133,7 +147,7 @@
             const formData = new FormData();
             formData.append('action', 'logout');
             await fetch('../backend/api.php', { method: 'POST', body: formData });
-            window.location.href = 'login.html';
+            window.location.href = 'auth/login.html';
         });
 
         loadDashboardData();

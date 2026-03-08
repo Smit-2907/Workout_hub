@@ -124,7 +124,7 @@
                             alert('Workout logged! View in your dashboard.');
                         } else {
                             alert(result.message || 'Please login to log workouts.');
-                            if (result.message === 'Please login to log workouts.') window.location.href = 'login.html';
+                            if (result.message === 'Please login to log workouts.') window.location.href = 'auth/login.html';
                         }
                     } catch (error) {
                         console.error('Error logging workout:', error);

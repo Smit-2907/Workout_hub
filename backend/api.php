@@ -7,20 +7,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
     if ($action === 'register') {
-        $name = $_POST['name'] ?? '';
-        $email = $_POST['email'] ?? '';
-        $password = $_POST['password'] ?? '';
+        $nm = $_POST['name'] ?? '';
+        $mail = $_POST['email'] ?? '';
+        $pass = $_POST['password'] ?? '';
+        $dob = $_POST['dob'] ?? null;
+        $gen = $_POST['gender'] ?? 'male';
+        $mno = $_POST['mno'] ?? '';
         
-        if (empty($name) || empty($email) || empty($password)) {
-            die(json_encode(['status' => 'error', 'message' => 'All fields required']));
+        if (empty($nm) || empty($mail) || empty($pass)) {
+            die(json_encode(['status' => 'error', 'message' => 'Required fields missing']));
         }
 
-        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        // Calculate age
+        $age = 0;
+        if ($dob) {
+            $birth = new DateTime($dob);
+            $today = new DateTime();
+            $age = $today->diff($birth)->y;
+        }
+
+        $hashed_password = password_hash($pass, PASSWORD_DEFAULT);
 
         try {
-            $stmt = $pdo->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
-            $stmt->execute([$name, $email, $hashed_password]);
-            echo json_encode(['status' => 'success', 'message' => 'User registered']);
+            $stmt = $pdo->prepare("INSERT INTO consumer_mst (c_nm, c_email, c_pwd, c_dob, c_age, c_gen, c_mno) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$nm, $mail, $hashed_password, $dob, $age, $gen, $mno]);
+            echo json_encode(['status' => 'success', 'message' => 'Registration successful']);
         } catch (PDOException $e) {
             if ($e->getCode() == 23000) {
                 echo json_encode(['status' => 'error', 'message' => 'Email already exists']);
@@ -31,20 +42,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($action === 'login') {
-        $email = $_POST['email'] ?? '';
-        $password = $_POST['password'] ?? '';
+        $mail = $_POST['email'] ?? '';
+        $pass = $_POST['password'] ?? '';
 
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
-        $stmt->execute([$email]);
+        $stmt = $pdo->prepare("SELECT * FROM consumer_mst WHERE c_email = ?");
+        $stmt->execute([$mail]);
         $user = $stmt->fetch();
 
-        if ($user && password_verify($password, $user['password'])) {
-            $_SESSION['user_id'] = $user['id'];
+        if ($user && password_verify($pass, $user['c_pwd'])) {
+            $_SESSION['user_id'] = $user['c_id'];
             $_SESSION['user_role'] = $user['role'];
-            $_SESSION['user_name'] = $user['name'];
-            echo json_encode(['status' => 'success', 'message' => 'Login successful', 'role' => $user['role']]);
+            $_SESSION['user_name'] = $user['c_nm'];
+            echo json_encode(['status' => 'success', 'message' => 'Login success', 'role' => $user['role']]);
         } else {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid credentials']);
+            echo json_encode(['status' => 'error', 'message' => 'Invalid email or password']);
         }
     }
 
@@ -141,6 +152,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $stmt = $pdo->prepare("SELECT l.*, e.name as exercise_name FROM user_logs l JOIN exercises e ON l.exercise_id = e.id WHERE l.user_id = ? ORDER BY l.logged_at DESC LIMIT 10");
         $stmt->execute([$user_id]);
         echo json_encode($stmt->fetchAll());
+    }
+
+    if ($action === 'check_session') {
+        if (isset($_SESSION['user_id'])) {
+            echo json_encode(['status' => 'authenticated', 'user' => $_SESSION['user_name'], 'role' => $_SESSION['user_role']]);
+        } else {
+            echo json_encode(['status' => 'unauthenticated']);
+        }
     }
 
     if ($action === 'get_user_stats' && isset($_SESSION['user_id'])) {

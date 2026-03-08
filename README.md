@@ -38,7 +38,8 @@ workout-hub/
 └── frontend/           # Public facing website files
     ├── index.html      # Landing Page
     ├── exercises.html  # Library Page
-    └── dashboard.html  # User Dashboard
+    ├── dashboard.html  # User Dashboard
+    └── auth/           # Login & Signup pages
 ```
 
 ## 🚀 Getting Started
