@@ -176,7 +176,20 @@
         }
 
         // Load Exercises for Admin
+        async function checkAdminAuth() {
+            const formData = new FormData();
+            formData.append('action', 'check_session');
+            const response = await fetch('../backend/api.php', { method: 'POST', body: formData });
+            const result = await response.json();
+
+            if (result.status !== 'authenticated' || result.role !== 'admin') {
+                alert('Access Denied: Admins only.');
+                window.location.href = result.status === 'authenticated' ? 'dashboard.html' : 'auth/login.html';
+            }
+        }
+
         async function loadRecentExercises() {
+            await checkAdminAuth();
             try {
                 const response = await fetch('../backend/api.php?action=get_exercises');
                 const exercises = await response.json();
@@ -208,7 +221,7 @@
             const formData = new FormData();
             formData.append('action', 'logout');
             await fetch('../backend/api.php', { method: 'POST', body: formData });
-            window.location.href = 'login.html';
+            window.location.href = 'auth/login.html';
         });
 
         loadRecentExercises();
