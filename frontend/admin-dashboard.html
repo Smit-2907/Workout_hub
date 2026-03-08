@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Workout Hub 2.0</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <nav class="glass">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div class="logo">WORKOUT<span style="color: var(--primary)">HUB</span> (Admin)</div>
+            <ul class="nav-links">
+                <li><a href="index.html">View Site</a></li>
+                <li><a href="#" id="logoutBtn">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container" style="margin-top: 4rem; display: grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
+        <!-- Add Exercise Form -->
+        <section class="glass animate" style="padding: 2rem;">
+            <h3 style="margin-bottom: 2rem;">Add New Exercise</h3>
+            <form id="addExerciseForm">
+                <input type="hidden" name="action" value="add_exercise">
+                <div class="form-group">
+                    <label>Exercise Name</label>
+                    <input type="text" name="name" class="form-input" placeholder="e.g. Bench Press" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" class="form-input" style="height: 100px; resize: none;"
+                        required></textarea>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Muscle Group</label>
+                        <select name="muscle_group" class="form-input" style="background: var(--bg-dark);">
+                            <option>Chest</option>
+                            <option>Back</option>
+                            <option>Legs</option>
+                            <option>Shoulders</option>
+                            <option>Core</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Difficulty</label>
+                        <select name="difficulty" class="form-input" style="background: var(--bg-dark);">
+                            <option>Beginner</option>
+                            <option>Intermediate</option>
+                            <option>Advanced</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Video URL (YouTube/Embed)</label>
+                    <input type="url" name="video_url" class="form-input" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label>Image URL</label>
+                    <input type="url" name="image_url" class="form-input" placeholder="https://...">
+                </div>
+                <button type="submit" class="btn btn-primary"
+                    style="width: 100%; justify-content: center; margin-top: 1rem;">
+                    Upload Exercise
+                </button>
+            </form>
+        </section>
+
+        <!-- Stats / List Overview -->
+        <section>
+            <div class="glass animate" style="padding: 2rem; margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 1rem;">Quick Stats</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                    <div style="text-align: center; padding: 1rem; background: var(--glass); border-radius: 12px;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">24</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Exercises</div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem; background: var(--glass); border-radius: 12px;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #10b981;">152</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Users</div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem; background: var(--glass); border-radius: 12px;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent);">850</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Logs</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass animate" style="padding: 2rem; animation-delay: 0.1s;">
+                <h3 style="margin-bottom: 1.5rem;">Recent Uploads</h3>
+                <div id="adminExerciseList" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <!-- List will be populated -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Handle Form Submission
+        document.getElementById('addExerciseForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+
+            try {
+                const response = await fetch('../backend/api.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    alert('Exercise added successfully!');
+                    e.target.reset();
+                    loadRecentExercises();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+
+        // Delete Exercise
+        async function deleteExercise(id) {
+            if (!confirm('Are you sure you want to delete this exercise?')) return;
+
+            const formData = new FormData();
+            formData.append('action', 'delete_exercise');
+            formData.append('id', id);
+
+            try {
+                const response = await fetch('../backend/api.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    loadRecentExercises();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Edit Exercise (Simple version)
+        async function editExercise(ex) {
+            const newName = prompt('Enter new name:', ex.name);
+            if (!newName) return;
+
+            const formData = new FormData();
+            formData.append('action', 'update_exercise');
+            formData.append('id', ex.id);
+            formData.append('name', newName);
+            formData.append('description', ex.description);
+            formData.append('muscle_group', ex.muscle_group);
+            formData.append('difficulty', ex.difficulty);
+            formData.append('video_url', ex.video_url);
+            formData.append('image_url', ex.image_url);
+
+            try {
+                const response = await fetch('../backend/api.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    loadRecentExercises();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Load Exercises for Admin
+        async function loadRecentExercises() {
+            try {
+                const response = await fetch('../backend/api.php?action=get_exercises');
+                const exercises = await response.json();
+                const list = document.getElementById('adminExerciseList');
+                list.innerHTML = '';
+
+                exercises.slice(0, 10).forEach(ex => {
+                    const item = document.createElement('div');
+                    item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--glass); border-radius: 10px;';
+                    item.innerHTML = `
+                        <div>
+                            <div style="font-weight: 600;">${ex.name}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">${ex.muscle_group} • ${ex.difficulty}</div>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn glass" style="padding: 0.5rem; border-radius: 8px;" onclick='editExercise(${JSON.stringify(ex)})'>Edit</button>
+                            <button class="btn glass" style="padding: 0.5rem; border-radius: 8px; color: var(--accent);" onclick="deleteExercise(${ex.id})">Delete</button>
+                        </div>
+                    `;
+                    list.appendChild(item);
+                });
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            const formData = new FormData();
+            formData.append('action', 'logout');
+            await fetch('../backend/api.php', { method: 'POST', body: formData });
+            window.location.href = 'login.html';
+        });
+
+        loadRecentExercises();
+    </script>
+</body>
+
+</html>
