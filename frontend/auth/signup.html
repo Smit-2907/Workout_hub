@@ -58,9 +58,18 @@
         </p>
     </div>
 
+    <script src="../js/api-helper.js"></script>
     <script>
+        // Adjust endpoint for auth folder
+        window.API_ENDPOINT = '../../backend/api.php';
+
         document.getElementById('signupForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = 'Creating account...';
+
             const name = document.getElementById('name').value;
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
@@ -68,31 +77,14 @@
             const mno = document.getElementById('mno').value;
             const gender = document.getElementById('gender').value;
 
-            const formData = new FormData();
-            formData.append('action', 'register');
-            formData.append('name', name);
-            formData.append('email', email);
-            formData.append('password', password);
-            formData.append('dob', dob);
-            formData.append('mno', mno);
-            formData.append('gender', gender);
+            const result = await apiRequest('register', 'POST', { name, email, password, dob, mno, gender });
 
-            try {
-                const response = await fetch('../../backend/api.php', {
-                    method: 'POST',
-                    body: formData
-                });
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    alert('Signup Success! Please login.');
-                    window.location.href = 'login.html';
-                } else {
-                    alert(result.message);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('An error occurred.');
+            if (result && result.status === 'success') {
+                showToast('Account created! Please login.', 'success');
+                setTimeout(() => window.location.href = 'login.html', 1500);
+            } else {
+                btn.disabled = false;
+                btn.innerText = originalText;
             }
         });
     </script>

@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS reviews (
     rating TINYINT CHECK (rating BETWEEN 1 AND 5),
     comment TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES consumer_mst(c_id) ON DELETE CASCADE,
     FOREIGN KEY (exercise_id) REFERENCES exercises(id) ON DELETE CASCADE
 );
 
@@ -63,6 +63,12 @@ CREATE TABLE IF NOT EXISTS user_logs (
     reps INT,
     weight FLOAT,
     logged_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (exercise_id) REFERENCES exercises(id) ON DELETE CASCADE
-);
+    FOREIGN KEY (user_id) REFERENCES consumer_mst(c_id),
+    FOREIGN KEY (exercise_id) REFERENCES exercises(id)
+) ENGINE=InnoDB;
+
+-- Performance Indexes
+CREATE INDEX idx_user_email ON consumer_mst(c_email);
+CREATE INDEX idx_exercise_name ON exercises(name);
+CREATE INDEX idx_exercise_muscle ON exercises(muscle_group);
+CREATE INDEX idx_logs_user_date ON user_logs(user_id, logged_at);

@@ -1,5 +1,26 @@
-USE workout_hub_2;
+-- Database Seed Data for Workout Hub 2.0
+USE workout_hub;
 
+-- Clear existing data if needed (optional)
+-- TRUNCATE TABLE user_logs;
+-- TRUNCATE TABLE exercises;
+-- DELETE FROM consumer_mst;
+
+-- 1. Seed Categories
+INSERT INTO categories (name) VALUES 
+('Strength'), ('Cardio'), ('Flexibility'), ('HIIT'), ('Bodyweight');
+
+-- 2. Seed Admin User
+-- Password is 'admin123' (hashed)
+INSERT INTO consumer_mst (c_nm, c_gen, c_email, c_pwd, role) VALUES 
+('System Admin', 'other', 'admin@workouthub.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
+
+-- 3. Seed Standard User
+-- Password is 'password123' (hashed)
+INSERT INTO consumer_mst (c_nm, c_gen, c_email, c_pwd, role) VALUES 
+('John Doe', 'male', 'john@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user');
+
+-- 4. Seed Exercises
 INSERT INTO exercises (name, description, muscle_group, difficulty, video_url, image_url) VALUES
 ('Classic Push-Ups', 'The fundamental chest movement for building upper body strength. Keep your core tight and elbows at a 45-degree angle.', 'Chest', 'Beginner', 'https://www.youtube.com/watch?v=IODxDxX7oi4', 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&q=80&w=800'),
 ('Goblet Squats', 'Effective leg builder using a single weight. Keep your chest up and drive through your heels.', 'Legs', 'Intermediate', 'https://www.youtube.com/watch?v=MeIiGibT6X0', 'https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&q=80&w=800'),
@@ -12,4 +33,6 @@ INSERT INTO exercises (name, description, muscle_group, difficulty, video_url, i
 ('Russian Twists', 'Target your obliques and improve rotational strength. Sit on the floor and twist your torso from side to side.', 'Core', 'Intermediate', 'https://www.youtube.com/watch?v=wkD8rjkodUI', 'https://images.unsplash.com/photo-1517838276556-782110144c8c?auto=format&fit=crop&q=80&w=800'),
 ('Lateral Raises', 'Isolate the lateral deltoids for broader shoulders. Use light weights and focus on form over load.', 'Shoulders', 'Beginner', 'https://www.youtube.com/watch?v=3VcKaXpzqRo', 'https://plus.unsplash.com/premium_photo-1664537158411-cf0660635436?auto=format&fit=crop&q=80&w=800'),
 ('Mountain Climbers', 'A high-intensity core and cardio movement. Bring knees to chest as fast as possible while maintaining a plank position.', 'Core', 'Intermediate', 'https://www.youtube.com/watch?v=zT-9L37ReNc', 'https://images.unsplash.com/photo-1598971639058-fab3c043bc6f?auto=format&fit=crop&q=80&w=800'),
-('Bicep Curls', 'The classic isolation exercise for the biceps. Keep your elbows tucked and avoid swinging.', 'Arms', 'Beginner', 'https://www.youtube.com/watch?v=ykJmrZ5v0Oo', 'https://images.unsplash.com/photo-1581009146145-b5ef03a7403f?auto=format&fit=crop&q=80&w=800');
+('Bicep Curls', 'The classic isolation exercise for the biceps. Keep your elbows tucked and avoid swinging.', 'Arms', 'Beginner', 'https://www.youtube.com/watch?v=ykJmrZ5v0Oo', 'https://images.unsplash.com/photo-1581009146145-b5ef03a7403f?auto=format&fit=crop&q=80&w=800'),
+('Kettlebell Swings', 'Powerful full-body exercise for glutes and hamstrings.', 'Legs', 'Intermediate', 'https://www.youtube.com/watch?v=YSxHifyot6w', 'https://images.unsplash.com/photo-1517838276556-782110144c8c?auto=format&fit=crop&q=80&w=800'),
+('Burpees', 'The ultimate full-body conditioning movement.', 'Cardio', 'Advanced', 'https://www.youtube.com/watch?v=dZfeHeK896Q', 'https://images.unsplash.com/photo-1599058917233-97f3b890aefd?auto=format&fit=crop&q=80&w=800');

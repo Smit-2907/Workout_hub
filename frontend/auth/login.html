@@ -36,33 +36,39 @@
         </p>
     </div>
 
+    <script src="../js/api-helper.js"></script>
     <script>
+        // Adjust endpoint for auth folder
+        window.API_ENDPOINT = '../../backend/api.php';
+
+        // This logout functionality is typically on dashboard/admin pages,
+        // but added here as per instruction's code snippet.
+        // It will not be triggered on the login page itself as there's no 'logoutBtn'.
+        document.getElementById('logoutBtn')?.addEventListener('click', async (e) => {
+            e.preventDefault();
+            localStorage.removeItem('auth_token');
+            await apiRequest('logout', 'POST');
+            window.location.href = 'auth/login.html';
+        });
+
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = 'Signing in...';
+
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            const formData = new FormData();
-            formData.append('action', 'login');
-            formData.append('email', email);
-            formData.append('password', password);
+            const result = await apiRequest('login', 'POST', { email, password });
 
-            try {
-                const response = await fetch('../../backend/api.php', {
-                    method: 'POST',
-                    body: formData
-                });
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    alert('Login Success! Redirecting...');
-                    window.location.href = result.role === 'admin' ? '../admin-dashboard.html' : '../dashboard.html';
-                } else {
-                    alert(result.message);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('An error occurred. check console.');
+            if (result && result.status === 'success') {
+                localStorage.setItem('auth_token', result.token);
+                window.location.href = result.role === 'admin' ? '../admin-dashboard.html' : '../dashboard.html';
+            } else {
+                btn.disabled = false;
+                btn.innerText = originalText;
             }
         });
     </script>
