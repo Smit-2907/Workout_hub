@@ -1,0 +1,19 @@
+# Workout Hub 2.0 Production Rules
+
+# Disable directory listing
+Options -Indexes
+
+# Basic Security Headers
+<IfModule mod_headers.c>
+    Header set X-XSS-Protection "1; mode=block"
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Handle 404s
+ErrorDocument 404 /workout/Workout_hub/frontend/index.html
+
+# Prevent access to database and docs direct folders
+RedirectMatch 404 ^/workout/Workout_hub/database/.*$
+RedirectMatch 404 ^/workout/Workout_hub/docs/.*$

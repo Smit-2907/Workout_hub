@@ -1,68 +1,79 @@
-# 🏋️ Workout Hub 2.0
+# 🦅 Workout Hub 2.0 - Industry Grade Fitness Platform
 
-Workout Hub 2.0 is a premium, modern fitness web platform designed for users to browse high-quality workout routines and for admins to manage fitness content. Built as a recreation and enhancement of a BCA college project, it follows industry-standard security practices and features a stunning **Glassmorphism** UI.
+Workout Hub 2.0 is a premium, production-ready web application designed for home workout enthusiasts. Built with a stunning **Glassmorphism UI** and a secured **JWT-style backend**, it offers a seamless experience for discovering exercises, tracking progress, and receiving AI-powered recommendations.
 
-## 🌟 Key Features
+![Workout Hub 2.0](https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80&w=1200)
 
-### 👤 User Features
-- **Modern Authentication**: Secure registration and login system using PHP PDO and password hashing.
-- **Smart Dashboard**: Personalized view with session-based welcome messages and quick stats.
-- **Exercise Library**: Searchable and filterable database of exercises categorized by muscle group and difficulty.
-- **Detailed Guides**: Dedicated exercise pages with embedded video tutorials and step-by-step instructions.
-- **Workout Tracker**: Log your sets, reps, and weights to keep track of your progress.
-- **AI Recommendation**: Intelligent system that suggests exercises based on muscle groups you haven't trained recently.
-- **Calorie Calculator**: Scientific estimate of calories burned using MET (Metabolic Equivalent of Task) values.
+## 💎 Features & Industry Standards
 
-### 🛡️ Admin Features
-- **Admin Dashboard**: Secure management portal for content oversight.
-- **Exercise Management (CRUD)**: Easily add, edit (name), and delete exercises from the library through a clean UI.
-- **Real-time Updates**: Changes made by admins reflect instantly across the platform via the API.
+### 🛡️ Security First
+- **Stateless Token Auth**: Implemented modern JWT-style authentication. No more messy session conflicts.
+- **XSS Protection**: All user inputs are sanitized on the backend.
+- **SQL Injection Prevention**: 100% prepared statements using PDO.
+- **Session Fixation Shield**: Automatic ID regeneration and secure cookie settings.
+- **Access Control**: Strict Role-Based Access Control (RBAC) for Admins and standard Users.
 
-## 🛠️ Technology Stack
-- **Frontend**: HTML5, Vanilla CSS3 (Custom Design System), JavaScript (Fetch API / AJAX)
-- **Backend**: PHP 8.x (Procedural with PDO)
-- **Database**: MySQL 
-- **Design Style**: Glassmorphism / Modern Dark Mode
+### ⚡ Performance & UX
+- **Glassmorphism UI**: High-end aesthetic using modern CSS variables and backdrop filters.
+- **Skeleton Loading**: Progressive UI states that prevent layout shifts and keep users engaged.
+- **Toast Notifications**: Real-time feedback for all user actions (login, saving, errors).
+- **SEO Optimized**: Custom meta tags, Open Graph support, and semantic HTML5.
 
-## 📂 Project Structure
-```text
-workout-hub/
-├── assets/             # Images and local media
-├── backend/            # PHP API logic and DB connections
-│   ├── api.php         # Central API for all operations
-│   └── db_connect.php  # Secure PDO connection
-├── database/           # SQL scripts
-│   ├── schema.sql      # Database tables and structure
-│   └── seed_data.sql   # Initial exercise data
-├── docs/               # Project documentation (Planning, UI/UX, Design)
-└── frontend/           # Public facing website files
-    ├── index.html      # Landing Page
-    ├── exercises.html  # Library Page
-    ├── dashboard.html  # User Dashboard
-    └── auth/           # Login & Signup pages
-```
-
-## 🚀 Getting Started
-
-### 1. Prerequisites
-- [XAMPP](https://www.apachefriends.org/index.html) or any PHP/MySQL local server environment.
-
-### 2. Database Setup
-1. Open **phpMyAdmin**.
-2. Create a new database named `workout_hub_2`.
-3. Import `database/schema.sql` to create the tables.
-4. Import `database/seed_data.sql` to populate the library with initial workouts.
-
-### 3. Installation
-1. Clone or download the project into your `htdocs` folder.
-2. Ensure the database connection in `backend/db_connect.php` matches your local MySQL credentials.
-3. Open your browser and navigate to `http://localhost/workout/Workout_hub/frontend/index.html`.
-
-## 📜 Documentation
-Full project phases and system designs can be found in the `docs/` folder:
-- [System Design](docs/SYSTEM_DESIGN.md)
-- [Project Plan](docs/PROJECT_PLAN.md)
-- [UI/UX Design](docs/UI_UX_DESIGN.md)
+### 🏋️ Core Functionality
+- **Exercise Library**: 14+ pro-tier exercises with video guides and muscle focus.
+- **Smart Dashboard**: Personalized statistics and activity tracking.
+- **AI Recommendations**: Intelligent logic that suggests workouts based on what you *haven't* trained recently.
+- **Admin Portal**: Full CRUD (Create, Read, Update, Delete) capability for managing the exercise database.
 
 ---
-*Created with ❤️ for BCA Project Excellence.*
+
+## 🛠️ Technology Stack
+- **Frontend**: HTML5, Vanilla CSS3, Javascript (ES6+)
+- **Backend**: PHP 8.1 (PDO)
+- **Database**: MySQL (Optimized with Performance Indexes)
+- **Authentication**: Custom Bearer Token System (Stateless)
+
+---
+
+## 🚀 Quick Start (Installation)
+
+1. **Clone & Extract**: Place the project folder in your `xampp/htdocs/` directory.
+2. **Setup Database**:
+   - Create a database named `workout_hub` in phpMyAdmin.
+   - Import `database/schema.sql` first.
+   - Import `database/seed_data.sql` to populate exercises and admin accounts.
+3. **Configure**:
+   - Open `backend/config.php`.
+   - Update `DB_PASS` and `BASE_URL` if necessary.
+4. **Launch**:
+   - Start Apache and MySQL in XAMPP.
+   - Visit `http://localhost/workout/Workout_hub/frontend/index.html`.
+
+### 🔑 Test Credentials (from Seed)
+| Role | Email | Password |
+| :--- | :--- | :--- |
+| **Admin** | `admin@workouthub.com` | `admin123` |
+| **User** | `john@example.com` | `password123` |
+
+---
+
+## 📁 Project Structure 
+```text
+Workout_hub/
+├── backend/               # Secured Backend Logic
+│   ├── api.php            # Stateless API Controller
+│   ├── config.php         # Centralized Environment Config
+│   └── db_connect.php     # PDO Connection Engine
+├── database/              # SQL Architecture & Seeding
+├── frontend/              # Modern UI Layer
+│   ├── auth/              # Login & Signup Pages
+│   ├── js/                # Production API Helpers & Logic
+│   └── style.css          # Premium Glassmorphism Design
+└── README.md
+```
+
+## ✅ Production Checklist
+Before taking this live, refer to the [PROD_GUIDE.md](PROD_GUIDE.md) included in the root directory for final hardening steps.
+
+---
+*Built for excellence. Workout Hub 2.0.*

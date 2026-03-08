@@ -1,0 +1,17 @@
+# Disable directory listing
+Options -Indexes
+
+# Prevent access to sensitive files
+<FilesMatch "^\.|\.(sql|md|log|php)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Allow access to index.php (if we had one) or the main API
+<Files api.php>
+    Order deny,allow
+    Allow from all
+</Files>
+
+# Ensure UTF-8
+AddDefaultCharset UTF-8

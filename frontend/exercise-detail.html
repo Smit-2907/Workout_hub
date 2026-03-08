@@ -27,6 +27,7 @@
         </div>
     </main>
 
+    <script src="js/api-helper.js"></script>
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const exerciseId = urlParams.get('id');
@@ -37,102 +38,85 @@
                 return;
             }
 
-            try {
-                const response = await fetch(`../backend/api.php?action=get_exercise_detail&id=${exerciseId}`);
-                const ex = await response.json();
-                const content = document.getElementById('exerciseContent');
+            const ex = await apiRequest('get_exercise_detail', 'GET', { id: exerciseId });
+            const content = document.getElementById('exerciseContent');
 
-                if (!ex) {
-                    content.innerHTML = '<p style="text-align: center;">Exercise not found.</p>';
-                    return;
-                }
-
-                document.title = `${ex.name} | Workout Hub 2.0`;
-
-                content.innerHTML = `
-                    <div style="margin-bottom: 2rem;">
-                        <a href="exercises.html" style="color: var(--primary); text-decoration: none; font-size: 0.9rem;">← Back to Exercises</a>
-                    </div>
-                    
-                    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
-                        <span style="padding: 0.2rem 0.8rem; background: rgba(99, 102, 241, 0.2); color: var(--primary); border-radius: 20px; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;">${ex.muscle_group}</span>
-                        <span style="padding: 0.2rem 0.8rem; background: rgba(16, 185, 129, 0.2); color: #10b981; border-radius: 20px; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;">${ex.difficulty}</span>
-                    </div>
-
-                    <h1 style="font-size: 3rem; margin-bottom: 2rem; text-align: left;">${ex.name}</h1>
-
-                    <div class="glass" style="padding: 1rem; margin-bottom: 3rem; overflow: hidden; height: 500px;">
-                        ${ex.video_url ?
-                        `<iframe width="100%" height="100%" src="${ex.video_url.replace('watch?v=', 'embed/')}" frameborder="0" allowfullscreen style="border-radius: 12px;"></iframe>` :
-                        `<div style="height: 100%; display: flex; align-items: center; justify-content: center; background: var(--bg-card); border-radius: 12px; color: var(--text-muted);">No video available for this exercise.</div>`
-                    }
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-bottom: 4rem;">
-                        <!-- Instructions -->
-                        <div class="glass" style="padding: 2.5rem;">
-                            <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                                📝 Instructions
-                            </h3>
-                            <p style="color: var(--text-main); font-size: 1.1rem; line-height: 1.8; white-space: pre-line;">
-                                ${ex.description}
-                            </p>
-                        </div>
-
-                        <!-- Log Form -->
-                        <div class="glass" style="padding: 2.5rem;">
-                             <h3 style="margin-bottom: 1.5rem;">Log Workout</h3>
-                             <form id="logForm">
-                                <input type="hidden" id="exId" value="${ex.id}">
-                                <div class="form-group">
-                                    <label>Sets</label>
-                                    <input type="number" id="sets" class="form-input" value="3">
-                                </div>
-                                <div class="form-group">
-                                    <label>Reps</label>
-                                    <input type="number" id="reps" class="form-input" value="10">
-                                </div>
-                                <div class="form-group">
-                                    <label>Weight (kg)</label>
-                                    <input type="number" id="weight" class="form-input" value="0">
-                                </div>
-                                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
-                                    Save Log
-                                </button>
-                             </form>
-                        </div>
-                    </div>
-                `;
-
-                // Add Form Listener after rendering
-                document.getElementById('logForm').addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const formData = new FormData();
-                    formData.append('action', 'log_workout');
-                    formData.append('exercise_id', document.getElementById('exId').value);
-                    formData.append('sets', document.getElementById('sets').value);
-                    formData.append('reps', document.getElementById('reps').value);
-                    formData.append('weight', document.getElementById('weight').value);
-
-                    try {
-                        const response = await fetch('../backend/api.php', {
-                            method: 'POST',
-                            body: formData
-                        });
-                        const result = await response.json();
-                        if (result.status === 'success') {
-                            alert('Workout logged! View in your dashboard.');
-                        } else {
-                            alert(result.message || 'Please login to log workouts.');
-                            if (result.message === 'Please login to log workouts.') window.location.href = 'auth/login.html';
-                        }
-                    } catch (error) {
-                        console.error('Error logging workout:', error);
-                    }
-                });
-            } catch (error) {
-                console.error('Error:', error);
+            if (!ex) {
+                content.innerHTML = '<p style="text-align: center;">Exercise not found.</p>';
+                return;
             }
+
+            document.title = `${ex.name} | Workout Hub 2.0`;
+
+            content.innerHTML = `
+                <div style="margin-bottom: 2rem;">
+                    <a href="exercises.html" style="color: var(--primary); text-decoration: none; font-size: 0.9rem;">← Back to Exercises</a>
+                </div>
+                
+                <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                    <span style="padding: 0.2rem 0.8rem; background: rgba(99, 102, 241, 0.2); color: var(--primary); border-radius: 20px; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;">${ex.muscle_group}</span>
+                    <span style="padding: 0.2rem 0.8rem; background: rgba(16, 185, 129, 0.2); color: #10b981; border-radius: 20px; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;">${ex.difficulty}</span>
+                </div>
+
+                <h1 style="font-size: 3rem; margin-bottom: 2rem; text-align: left;">${ex.name}</h1>
+
+                <div class="glass" style="padding: 1rem; margin-bottom: 3rem; overflow: hidden; height: 500px;">
+                    ${ex.video_url ?
+                    `<iframe width="100%" height="100%" src="${ex.video_url.replace('watch?v=', 'embed/')}" frameborder="0" allowfullscreen style="border-radius: 12px;"></iframe>` :
+                    `<div style="height: 100%; display: flex; align-items: center; justify-content: center; background: var(--bg-card); border-radius: 12px; color: var(--text-muted);">No video available for this exercise.</div>`
+                }
+                </div>
+
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-bottom: 4rem;">
+                    <div class="glass" style="padding: 2.5rem;">
+                        <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                            📝 Instructions
+                        </h3>
+                        <p style="color: var(--text-main); font-size: 1.1rem; line-height: 1.8; white-space: pre-line;">
+                            ${ex.description}
+                        </p>
+                    </div>
+
+                    <div class="glass" style="padding: 2.5rem;">
+                         <h3 style="margin-bottom: 1.5rem;">Log Workout</h3>
+                         <form id="logForm">
+                            <input type="hidden" id="exId" value="${ex.id}">
+                            <div class="form-group">
+                                <label>Sets</label>
+                                <input type="number" id="sets" class="form-input" value="3">
+                            </div>
+                            <div class="form-group">
+                                <label>Reps</label>
+                                <input type="number" id="reps" class="form-input" value="10">
+                            </div>
+                            <div class="form-group">
+                                <label>Weight (kg)</label>
+                                <input type="number" id="weight" class="form-input" value="0">
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                                Save Log
+                            </button>
+                         </form>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('logForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const result = await apiRequest('log_workout', 'POST', {
+                    exercise_id: document.getElementById('exId').value,
+                    sets: document.getElementById('sets').value,
+                    reps: document.getElementById('reps').value,
+                    weight: document.getElementById('weight').value
+                });
+
+                if (result && result.status === 'success') {
+                    showToast('Workout logged successfully!', 'success');
+                } else if (result && result.message === 'No active session') {
+                    showToast('Please login to log workouts', 'error');
+                    setTimeout(() => window.location.href = 'auth/login.html', 1500);
+                }
+            });
         }
 
         loadExerciseDetail();

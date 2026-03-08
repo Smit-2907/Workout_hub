@@ -48,40 +48,45 @@
         </div>
     </main>
 
+    <script src="js/api-helper.js"></script>
     <script>
         const muscleFilter = document.getElementById('muscleFilter');
         const diffFilter = document.getElementById('diffFilter');
         const searchInput = document.getElementById('searchInput');
 
         async function fetchExercises() {
+            const grid = document.getElementById('exerciseGrid');
+
+            // Show Skeletons
+            grid.innerHTML = '<div class="skeleton" style="height: 350px;"></div>'.repeat(6);
+
             const muscle = muscleFilter.value;
             const diff = diffFilter.value;
             const search = searchInput.value.toLowerCase();
 
-            try {
-                const response = await fetch(`../backend/api.php?action=get_exercises&muscle=${muscle}&difficulty=${diff}`);
-                const exercises = await response.json();
+            const exercises = await apiRequest('get_exercises', 'GET', { muscle, difficulty: diff });
 
-                const grid = document.getElementById('exerciseGrid');
-                grid.innerHTML = '';
+            if (!exercises) return;
 
-                if (exercises.length === 0) {
-                    grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">No exercises found.</p>';
-                }
+            grid.innerHTML = '';
 
-                exercises.forEach(ex => {
-                    if (search && !ex.name.toLowerCase().includes(search)) return;
+            if (exercises.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">No exercises found.</p>';
+            }
 
-                    const card = document.createElement('div');
-                    card.className = 'glass animate';
-                    card.style.overflow = 'hidden';
-                    card.style.padding = '0';
+            exercises.forEach(ex => {
+                if (search && !ex.name.toLowerCase().includes(search)) return;
 
-                    const imgUrl = ex.image_url || 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&q=80&w=400';
-                    const muscleBadgeColor = ex.muscle_group === 'Chest' ? 'rgba(99, 102, 241, 0.2)' : 'rgba(244, 63, 94, 0.2)';
-                    const muscleTextColor = ex.muscle_group === 'Chest' ? 'var(--primary)' : 'var(--accent)';
+                const card = document.createElement('div');
+                card.className = 'glass animate';
+                card.style.overflow = 'hidden';
+                card.style.padding = '0';
 
-                    card.innerHTML = `
+                const imgUrl = ex.image_url || 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&q=80&w=400';
+                const muscleBadgeColor = ex.muscle_group === 'Chest' ? 'rgba(99, 102, 241, 0.2)' : 'rgba(244, 63, 94, 0.2)';
+                const muscleTextColor = ex.muscle_group === 'Chest' ? 'var(--primary)' : 'var(--accent)';
+
+                card.innerHTML = `
                         <div style="height: 200px; background: #334155 url('${imgUrl}') center/cover;"></div>
                         <div style="padding: 1.5rem;">
                             <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
@@ -93,11 +98,11 @@
                             <a href="exercise-detail.html?id=${ex.id}" class="btn btn-primary" style="width: 100%; justify-content: center;">View Exercise</a>
                         </div>
                     `;
-                    grid.appendChild(card);
-                });
-            } catch (error) {
-                console.error('Error fetching exercises:', error);
-            }
+                grid.appendChild(card);
+            });
+        } catch (error) {
+            console.error('Error fetching exercises:', error);
+        }
         }
 
         muscleFilter.addEventListener('change', fetchExercises);

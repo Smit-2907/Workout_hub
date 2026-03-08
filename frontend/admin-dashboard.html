@@ -98,129 +98,86 @@
         </section>
     </main>
 
+    <script src="js/api-helper.js"></script>
     <script>
         // Handle Form Submission
         document.getElementById('addExerciseForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
 
-            try {
-                const response = await fetch('../backend/api.php', {
-                    method: 'POST',
-                    body: formData
-                });
-                const result = await response.json();
-                if (result.status === 'success') {
-                    alert('Exercise added successfully!');
-                    e.target.reset();
-                    loadRecentExercises();
-                } else {
-                    alert('Error: ' + result.message);
-                }
-            } catch (error) {
-                console.error('Error:', error);
+            const result = await apiRequest('add_exercise', 'POST', data);
+            if (result && result.status === 'success') {
+                showToast('Exercise added successfully!', 'success');
+                e.target.reset();
+                loadRecentExercises();
             }
         });
 
         // Delete Exercise
         async function deleteExercise(id) {
             if (!confirm('Are you sure you want to delete this exercise?')) return;
-
-            const formData = new FormData();
-            formData.append('action', 'delete_exercise');
-            formData.append('id', id);
-
-            try {
-                const response = await fetch('../backend/api.php', {
-                    method: 'POST',
-                    body: formData
-                });
-                const result = await response.json();
-                if (result.status === 'success') {
-                    loadRecentExercises();
-                } else {
-                    alert('Error: ' + result.message);
-                }
-            } catch (error) {
-                console.error('Error:', error);
+            const result = await apiRequest('delete_exercise', 'POST', { id });
+            if (result && result.status === 'success') {
+                showToast('Exercise deleted');
+                loadRecentExercises();
             }
         }
 
-        // Edit Exercise (Simple version)
+        // Edit Exercise
         async function editExercise(ex) {
             const newName = prompt('Enter new name:', ex.name);
             if (!newName) return;
 
-            const formData = new FormData();
-            formData.append('action', 'update_exercise');
-            formData.append('id', ex.id);
-            formData.append('name', newName);
-            formData.append('description', ex.description);
-            formData.append('muscle_group', ex.muscle_group);
-            formData.append('difficulty', ex.difficulty);
-            formData.append('video_url', ex.video_url);
-            formData.append('image_url', ex.image_url);
-
-            try {
-                const response = await fetch('../backend/api.php', {
-                    method: 'POST',
-                    body: formData
-                });
-                const result = await response.json();
-                if (result.status === 'success') {
-                    loadRecentExercises();
-                }
-            } catch (error) {
-                console.error('Error:', error);
+            const result = await apiRequest('update_exercise', 'POST', {
+                ...ex,
+                name: newName
+            });
+            if (result && result.status === 'success') {
+                showToast('Exercise updated');
+                loadRecentExercises();
             }
         }
 
-        // Load Exercises for Admin
+        // Auth Check
         async function checkAdminAuth() {
-            const formData = new FormData();
-            formData.append('action', 'check_session');
-            const response = await fetch('../backend/api.php', { method: 'POST', body: formData });
-            const result = await response.json();
-
-            if (result.status !== 'authenticated' || result.role !== 'admin') {
-                alert('Access Denied: Admins only.');
-                window.location.href = result.status === 'authenticated' ? 'dashboard.html' : 'auth/login.html';
+            const result = await apiRequest('check_session');
+            if (!result || result.status !== 'authenticated' || result.role !== 'admin') {
+                showToast('Access Denied', 'error');
+                window.location.href = result && result.status === 'authenticated' ? 'dashboard.html' : 'auth/login.html';
             }
         }
 
         async function loadRecentExercises() {
             await checkAdminAuth();
-            try {
-                const response = await fetch('../backend/api.php?action=get_exercises');
-                const exercises = await response.json();
-                const list = document.getElementById('adminExerciseList');
-                list.innerHTML = '';
+            const exercises = await apiRequest('get_exercises');
+            if (!exercises) return;
 
-                exercises.slice(0, 10).forEach(ex => {
-                    const item = document.createElement('div');
-                    item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--glass); border-radius: 10px;';
-                    item.innerHTML = `
-                        <div>
-                            <div style="font-weight: 600;">${ex.name}</div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted);">${ex.muscle_group} • ${ex.difficulty}</div>
-                        </div>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <button class="btn glass" style="padding: 0.5rem; border-radius: 8px;" onclick='editExercise(${JSON.stringify(ex)})'>Edit</button>
-                            <button class="btn glass" style="padding: 0.5rem; border-radius: 8px; color: var(--accent);" onclick="deleteExercise(${ex.id})">Delete</button>
-                        </div>
-                    `;
-                    list.appendChild(item);
-                });
-            } catch (error) {
-                console.error('Error:', error);
-            }
+            const list = document.getElementById('adminExerciseList');
+            list.innerHTML = '';
+
+            exercises.slice(0, 10).forEach(ex => {
+                const item = document.createElement('div');
+                item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--glass); border-radius: 10px;';
+                item.innerHTML = `
+                    <div>
+                        <div style="font-weight: 600;">${ex.name}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">${ex.muscle_group} • ${ex.difficulty}</div>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn glass" style="padding: 0.5rem; border-radius: 8px;" onclick='editExercise(${JSON.stringify(ex)})'>Edit</button>
+                        <button class="btn glass" style="padding: 0.5rem; border-radius: 8px; color: var(--accent);" onclick="deleteExercise(${ex.id})">Delete</button>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
         }
 
         // Logout
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
-            const formData = new FormData();
-            formData.append('action', 'logout');
-            await fetch('../backend/api.php', { method: 'POST', body: formData });
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            localStorage.removeItem('auth_token');
+            await apiRequest('logout', 'POST');
             window.location.href = 'auth/login.html';
         });
 

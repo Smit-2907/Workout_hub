@@ -70,18 +70,11 @@
         </div>
     </main>
 
+    <script src="js/api-helper.js"></script>
     <script>
-        // Simple Session Mock for Welcome Message
-        // In a real app, we'd fetch actual session data from backend, 
-        // but here we can just show the generic UI for the dashboard.
-
         async function checkAuth() {
-            const formData = new FormData();
-            formData.append('action', 'check_session');
-            const response = await fetch('../backend/api.php', { method: 'POST', body: formData });
-            const result = await response.json();
-
-            if (result.status !== 'authenticated') {
+            const result = await apiRequest('check_session');
+            if (!result || result.status !== 'authenticated') {
                 window.location.href = 'auth/login.html';
             } else {
                 document.getElementById('welcomeMsg').innerText = `Welcome back, ${result.user}!`;
@@ -90,40 +83,38 @@
 
         async function loadDashboardData() {
             await checkAuth();
-            try {
-                // Load Stats
-                const statsResp = await fetch('../backend/api.php?action=get_user_stats');
-                const stats = await statsResp.json();
+
+            // Load Stats
+            const stats = await apiRequest('get_user_stats');
+            if (stats) {
                 document.getElementById('weekCount').innerText = stats.week_workouts;
                 document.getElementById('favFocus').innerText = stats.favorite_focus;
+            }
 
-                // Load Recommendation
-                const recoResp = await fetch('../backend/api.php?action=get_recommendation');
-                const reco = await recoResp.json();
-                const recoDiv = document.getElementById('recoContainer');
-                if (reco.exercise) {
-                    recoDiv.innerHTML = `
-                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">${reco.reason}</p>
-                        <div style="background: var(--glass); padding: 1rem; border-radius: 12px;">
-                            <h4 style="margin-bottom: 0.25rem;">${reco.exercise.name}</h4>
-                            <div style="font-size: 0.75rem; color: var(--primary); font-weight: 600; text-transform: uppercase; margin-bottom: 1rem;">${reco.exercise.muscle_group}</div>
-                            <a href="exercise-detail.html?id=${reco.exercise.id}" class="btn glass" style="width: 100%; justify-content: center; font-size: 0.8rem;">View Workout</a>
-                        </div>
-                    `;
-                } else {
-                    recoDiv.innerHTML = '<p style="color: var(--text-muted);">Could not find a recommendation. Try adding more exercises!</p>';
-                }
+            // Load Recommendation
+            const reco = await apiRequest('get_recommendation');
+            const recoDiv = document.getElementById('recoContainer');
+            if (reco && reco.exercise) {
+                recoDiv.innerHTML = `
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">${reco.reason}</p>
+                    <div style="background: var(--glass); padding: 1rem; border-radius: 12px;">
+                        <h4 style="margin-bottom: 0.25rem;">${reco.exercise.name}</h4>
+                        <div style="font-size: 0.75rem; color: var(--primary); font-weight: 600; text-transform: uppercase; margin-bottom: 1rem;">${reco.exercise.muscle_group}</div>
+                        <a href="exercise-detail.html?id=${reco.exercise.id}" class="btn glass" style="width: 100%; justify-content: center; font-size: 0.8rem;">View Workout</a>
+                    </div>
+                `;
+            } else {
+                recoDiv.innerHTML = '<p style="color: var(--text-muted);">Could not find a recommendation. Try adding more exercises!</p>';
+            }
 
-                // Load Logs
-                const logsResp = await fetch('../backend/api.php?action=get_user_logs');
-                const logs = await logsResp.json();
-                const container = document.getElementById('logsContainer');
-                container.innerHTML = '';
+            // Load Logs
+            const logs = await apiRequest('get_user_logs');
+            const container = document.getElementById('logsContainer');
+            container.innerHTML = '';
 
-                if (logs.length === 0) {
-                    container.innerHTML = '<p style="color: var(--text-muted);">No workouts logged yet.</p>';
-                }
-
+            if (!logs || logs.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted);">No workouts logged yet.</p>';
+            } else {
                 logs.forEach(log => {
                     const item = document.createElement('div');
                     item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: var(--glass); border-radius: 10px; font-size: 0.9rem;';
@@ -138,15 +129,13 @@
                     `;
                     container.appendChild(item);
                 });
-            } catch (error) {
-                console.error('Error loading dashboard:', error);
             }
         }
 
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
-            const formData = new FormData();
-            formData.append('action', 'logout');
-            await fetch('../backend/api.php', { method: 'POST', body: formData });
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            localStorage.removeItem('auth_token');
+            await apiRequest('logout', 'POST');
             window.location.href = 'auth/login.html';
         });
 
