@@ -12,7 +12,7 @@ Options -Indexes
 </IfModule>
 
 # Handle 404s
-ErrorDocument 404 /workout/Workout_hub/frontend/index.html
+ErrorDocument 404 /workout/Workout_hub/index.html
 
 # Prevent access to database and docs direct folders
 RedirectMatch 404 ^/workout/Workout_hub/database/.*$

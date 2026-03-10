@@ -32,7 +32,7 @@ function generateToken($user) {
 
 function verifyToken() {
     $headers = getallheaders();
-    $authHeader = $headers['Authorization'] ?? '';
+    $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
     
     if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
         $jwt = $matches[1];
@@ -129,6 +129,19 @@ try {
             sendResponse('success', 'Logged out');
         }
 
+        // --- AUTH PROTECTED POST ACTIONS ---
+        if (!$currentUser && strpos($action, 'get_') === false && $action !== 'register' && $action !== 'login') {
+             // For any other POST action, require auth
+             // Wait, let's be more specific
+        }
+
+        if ($action === 'log_workout') {
+            if (!$currentUser) sendResponse('unauthenticated', 'Please login to log workouts');
+            $stmt = $pdo->prepare("INSERT INTO user_logs (user_id, exercise_id, sets, reps, weight) VALUES (?, ?, ?, ?, ?)");
+            $stmt->execute([$currentUser['user_id'], $_POST['exercise_id'], $_POST['sets'], $_POST['reps'], $_POST['weight']]);
+            sendResponse('success', 'Workout logged successfully');
+        }
+
         // Admin Only Actions
         if (strpos($action, 'exercise') !== false && ($currentUser['role'] ?? '') !== 'admin') {
             sendResponse('error', 'Unauthorized access');
@@ -150,12 +163,6 @@ try {
             $stmt = $pdo->prepare("UPDATE exercises SET name=?, description=?, muscle_group=?, difficulty=?, video_url=?, image_url=? WHERE id=?");
             $stmt->execute([$_POST['name'], $_POST['description'], $_POST['muscle_group'], $_POST['difficulty'], $_POST['video_url'], $_POST['image_url'], $_POST['id']]);
             sendResponse('success', 'Exercise updated');
-        }
-
-        if ($action === 'log_workout' && $currentUser) {
-            $stmt = $pdo->prepare("INSERT INTO user_logs (user_id, exercise_id, sets, reps, weight) VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute([$currentUser['user_id'], $_POST['exercise_id'], $_POST['sets'], $_POST['reps'], $_POST['weight']]);
-            sendResponse('success', 'Workout logged successfully');
         }
     }
 
@@ -196,14 +203,17 @@ try {
             }
         }
 
-        if ($action === 'get_user_logs' && $currentUser) {
+        // --- AUTH PROTECTED GET ACTIONS ---
+        if ($action === 'get_user_logs') {
+            if (!$currentUser) sendResponse('unauthenticated', 'Please login');
             $stmt = $pdo->prepare("SELECT l.*, e.name as exercise_name FROM user_logs l JOIN exercises e ON l.exercise_id = e.id WHERE l.user_id = ? ORDER BY l.logged_at DESC LIMIT 10");
             $stmt->execute([$currentUser['user_id']]);
             echo json_encode($stmt->fetchAll());
             exit;
         }
 
-        if ($action === 'get_user_stats' && $currentUser) {
+        if ($action === 'get_user_stats') {
+            if (!$currentUser) sendResponse('unauthenticated', 'Please login');
             $user_id = $currentUser['user_id'];
             $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM user_logs WHERE user_id = ? AND logged_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)");
             $stmt->execute([$user_id]);
@@ -215,7 +225,8 @@ try {
             exit;
         }
 
-        if ($action === 'get_recommendation' && $currentUser) {
+        if ($action === 'get_recommendation') {
+            if (!$currentUser) sendResponse('unauthenticated', 'Please login');
             $stmt = $pdo->prepare("SELECT DISTINCT e.muscle_group FROM user_logs l JOIN exercises e ON l.exercise_id = e.id WHERE l.user_id = ? AND l.logged_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)");
             $stmt->execute([$currentUser['user_id']]);
             $trained = $stmt->fetchAll(PDO::FETCH_COLUMN);

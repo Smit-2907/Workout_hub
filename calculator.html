@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Calculator | Workout Hub 2.0</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <nav class="glass">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div class="logo">WORKOUT<span style="color: var(--primary)">HUB</span></div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="exercises.html">Exercises</a></li>
+                <li><a href="dashboard.html">Dashboard</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container" style="margin-top: 6rem; max-width: 600px;">
+        <div class="glass animate" style="padding: 2.5rem;">
+            <h2 style="margin-bottom: 2rem; font-size: 2rem;">BMI Calculator</h2>
+            <form id="bmiForm">
+                <div class="form-group">
+                    <label>Weight (kg)</label>
+                    <input type="number" id="weight" class="form-input" placeholder="e.g. 75" required>
+                </div>
+                <div class="form-group">
+                    <label>Height (cm)</label>
+                    <input type="number" id="height" class="form-input" placeholder="e.g. 175" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Calculate
+                    BMI</button>
+            </form>
+
+            <div id="result" class="animate" style="margin-top: 3rem; display: none; text-align: center;">
+                <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 0.5rem;">Your BMI Is:</p>
+                <div id="bmiValue" style="font-size: 4rem; font-weight: 800; color: var(--primary); line-height: 1;">0.0
+                </div>
+                <p id="bmiStatus" style="font-weight: 600; margin-top: 0.5rem; text-transform: uppercase;"></p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('bmiForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const w = parseFloat(document.getElementById('weight').value);
+            const h = parseFloat(document.getElementById('height').value) / 100;
+            const bmi = (w / (h * h)).toFixed(1);
+
+            const resultDiv = document.getElementById('result');
+            const bmiValue = document.getElementById('bmiValue');
+            const bmiStatus = document.getElementById('bmiStatus');
+
+            resultDiv.style.display = 'block';
+            bmiValue.innerText = bmi;
+
+            let status = '';
+            let color = '';
+
+            if (bmi < 18.5) { status = 'Underweight'; color = '#38bdf8'; }
+            else if (bmi < 25) { status = 'Normal Weight'; color = '#10b981'; }
+            else if (bmi < 30) { status = 'Overweight'; color = '#fbbf24'; }
+            else { status = 'Obese'; color = '#f43f5e'; }
+
+            bmiStatus.innerText = status;
+            bmiStatus.style.color = color;
+        });
+    </script>
+</body>
+
+</html>
